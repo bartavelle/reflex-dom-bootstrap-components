@@ -132,6 +132,15 @@ row = divClass "row"
 containerFluid :: MonadWidget t m => m a -> m a
 containerFluid = divClass "container-fluid"
 
+li :: MonadWidget t m => m a -> m a
+li = el "li"
+
+ul :: MonadWidget t m => m a -> m a
+ul = el "ul"
+
+code :: MonadWidget t m => m a -> m a
+code = el "code"
+
 table ::MonadWidget t m => m a -> m a
 table = elClass "table" "table table-bordered"
 
