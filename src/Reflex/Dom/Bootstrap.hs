@@ -24,6 +24,42 @@ import Control.Monad
 import Data.Maybe
 import Control.Lens
 
+data BSColors = BSDefault
+              | BSPrimary
+              | BSSuccess
+              | BSInfo
+              | BSWarning
+              | BSDanger
+              deriving (Show, Eq, Ord, Enum, Bounded)
+
+colorclass :: BSColors -> String
+colorclass c = case c of
+                   BSDefault -> "default"
+                   BSPrimary -> "primary"
+                   BSSuccess -> "success"
+                   BSInfo    -> "info"
+                   BSWarning -> "warning"
+                   BSDanger  -> "danger"
+
+sizeClass :: ButtonSize -> String
+sizeClass c = case c of
+                  BtnXs -> "xs"
+                  BtnSm -> "sm"
+                  BtnDf -> "df"
+                  BtnLg -> "lg"
+
+data ButtonSize = BtnXs
+                | BtnSm
+                | BtnDf
+                | BtnLg
+                deriving (Show, Eq, Ord, Enum, Bounded)
+
+glyphButton :: MonadWidget t m => BSColors -> ButtonSize -> String -> m (Event t ())
+glyphButton bscolor bssize glyphname = do
+    (e, _) <- elAttr' "button" (M.fromList [("type","button"),("class", unwords ["btn", "btn-" ++ colorclass bscolor, sizeClass bssize])]) $
+        elClass "span" ("glyphicon glyphicon-" ++ glyphname) $ return ()
+    return $ domEvent Click e
+
 staticDropdown :: (MonadWidget t m, Ord k, Show k, Read k) => k -> M.Map k String -> m (Dynamic t k)
 staticDropdown f entries = _dropdown_value <$> dropdown f (constDyn entries) (DropdownConfig never (constDyn attrs))
     where
