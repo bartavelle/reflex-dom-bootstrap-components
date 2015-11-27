@@ -22,7 +22,6 @@ import qualified Data.Text.Encoding as T
 import Data.Aeson
 import Control.Monad
 import Data.Maybe
-import Control.Lens
 
 data BSColors = BSDefault
               | BSPrimary
@@ -143,37 +142,6 @@ code = el "code"
 
 table ::MonadWidget t m => m a -> m a
 table = elClass "table" "table table-bordered"
-
-addListWorkflow :: MonadWidget t m
-                => a -- ^ default value
-                -> M.Map Int a -- ^ Initial value
-                -> (forall b. m b -> m b) -- ^ header for the list
-                -> (a -> m (Event t a)) -- ^ handle a single list item
-                -> m (Event t ()) -- ^ Add button
-                -> Event t x -- ^ Refresh event
-                -> Workflow t m (M.Map Int a)
-addListWorkflow defValue initList hdr handlemodification addbutton refresh = Workflow $ do
-    modificationEvents <- mergeMap <$> hdr (traverse handlemodification initList)
-    listD <- foldDyn M.union initList modificationEvents
-    addEvent <- addbutton
-    let refreshListE = tagDyn listD refresh
-        addListE = attachDynWith (\d _ -> addElement d) listD addEvent
-        addElement mp = let mx = if M.null mp then 0 else fst (M.findMax mp) + 1
-                        in  mp & at mx ?~ defValue
-        changeEvents = leftmost [refreshListE, addListE]
-    return (initList, fmap (\mp -> addListWorkflow defValue mp hdr handlemodification addbutton refresh) changeEvents)
-
-addList :: MonadWidget t m
-        => a -- ^ default value
-        -> [a] -- ^ Initial value
-        -> (forall b. m b -> m b) -- ^ header for the list
-        -> (a -> m (Event t a)) -- ^ handle a single list item
-        -> m (Event t ()) -- ^ Add button
-        -> Event t x -- ^ Refresh event
-        -> m (Dynamic t [a])
-addList defValue initList hdr handlemodification addbutton refresh = workflow (addListWorkflow defValue initmap hdr handlemodification addbutton refresh) >>= mapDyn M.elems
-    where
-        initmap = M.fromList $ zip [0..] initList
 
 --- queries
 
