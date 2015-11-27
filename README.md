@@ -1,3 +1,3 @@
 # reflex-dom-bootstrap-components
 
-add description of reflex-dom-bootstrap-components here
+Some useful pre-built components that work nicely with bootstrap.
